@@ -193,11 +193,6 @@
             flex-wrap: wrap;
             margin-top: 1rem;
         }
-        .rank-icon {
-            font-weight: 800;
-            width: 28px;
-            display: inline-block;
-        }
         footer {
             text-align: center;
             font-size: 0.7rem;
@@ -210,10 +205,6 @@
             .form-grid { flex-direction: column; }
             .input-group { width: 100%; }
             th, td { font-size: 0.8rem; padding: 8px; }
-        }
-        .sort-indicator {
-            font-size: 0.7rem;
-            margin-left: 5px;
         }
     </style>
 </head>
@@ -478,7 +469,7 @@
         });
     }
 
-    // Neuen Lauf hinzufügen
+    // Neuen Lauf hinzufügen - KORRIGIERTE ID ohne Punkte
     async function addRun(name, distanceKm, timeMinutes) {
         if (!name || name.trim() === '') {
             alert('Bitte einen Namen eingeben.');
@@ -492,7 +483,10 @@
             alert('Ungültige Zeit. Bitte Format MM:SS verwenden.');
             return false;
         }
-        const newId = Date.now().toString() + Math.random().toString(36);
+        // Erzeuge einen gültigen Firebase-Pfad: nur Buchstaben, Zahlen, Bindestrich, Unterstrich
+        const timestamp = Date.now();
+        const randomPart = Math.random().toString(36).substring(2, 10); // entfernt den "0." am Anfang
+        const newId = `${timestamp}_${randomPart}`;  // Beispiel: "1742589123456_k3f9d2"
         const newRun = {
             name: name.trim(),
             distance_km: parseFloat(distanceKm),
@@ -502,6 +496,7 @@
             await activitiesRef.child(newId).set(newRun);
             return true;
         } catch (err) {
+            console.error(err);
             alert('Fehler beim Speichern: ' + err.message);
             return false;
         }
@@ -514,7 +509,7 @@
         }
     }
 
-    // Beispieldaten
+    // Beispieldaten (auch hier korrekte IDs)
     function loadExampleData() {
         if (activities.length > 0) {
             if (!confirm('Beispieldaten ersetzen deine aktuellen Daten? Fortfahren?')) return;
@@ -530,7 +525,9 @@
             { name: 'Mia', distance_km: 11.2, time_minutes: 61.0 }
         ];
         for (const run of exampleRuns) {
-            const newId = Date.now().toString() + Math.random().toString(36) + run.name;
+            const timestamp = Date.now() + Math.random() * 10000;
+            const randomPart = Math.random().toString(36).substring(2, 8);
+            const newId = `${timestamp}_${randomPart}`;
             activitiesRef.child(newId).set(run);
         }
     }
